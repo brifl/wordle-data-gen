@@ -1,14 +1,14 @@
 import argparse
 import files
+from games import WordSet
 
 def run(games, top, infile, outfile):
+    print(f"Generating {games} games and outputting top {top} games to {outfile} using {infile} as input.")
     file_text = files.from_input(infile)
-    
-    words = files.read_words(infile)
-    games = files.generate_games(words, games)
-    games = files.sort_games(games)
-    games = games[:top]
-    files.write_games(games, outfile)
+    words = WordSet(file_text)
+    # words.apply_length_filter(5)
+    # five_letter_word_data = '\n'.join(words.get_filtered_words())
+    # files.to_output(outfile, five_letter_word_data)
 
 
 if __name__ == "__main__":

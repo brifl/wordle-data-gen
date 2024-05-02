@@ -1,8 +1,8 @@
 from typing import Set
 
 class WordSet:
-    all_words = Set[str]()
-    filtered_words = Set[str]()
+    all_words: Set[str] = set()
+    filtered_words: Set[str] = set()
 
     def __init__(self, words:str):
         self.init(words)
