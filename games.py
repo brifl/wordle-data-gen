@@ -126,10 +126,6 @@ class WordleGame:
         }
 
 
-def random_guesser_function(possible_words: List[str], game_state: dict) -> str:
-    return random.choice(possible_words)
-
-
 class GameRunner:
     def __init__(self, words: WordSet):
         self.words = words
@@ -149,17 +145,18 @@ class GameRunner:
             new_games.append(new_game)
         return new_games
 
-    def filter_words(self, game: WordleGame) -> None:
+    @staticmethod
+    def filter_words(words: WordSet, game: WordleGame) -> None:
         open_positions = []
         for i in range(0, len(game.right_spot)):
             if game.right_spot[i] != "?":
-                self.words.apply_letter_position_filter(i, game.right_spot[i])
+                words.apply_letter_position_filter(i, game.right_spot[i])
             else:
                 open_positions.append(i)
         for letter in game.wrong_spot:
-            self.words.apply_letter_not_contained_filter(letter, open_positions)
+            words.apply_letter_not_contained_filter(letter, open_positions)
         for letter in game.letters_not_remaining:
-            self.words.apply_letter_contained_filter(letter, open_positions)
+            words.apply_letter_contained_filter(letter, open_positions)
 
     def run_game(
         self, game: WordleGame, guesser: Callable[[List[str], dict], str]
@@ -185,7 +182,7 @@ class GameRunner:
 
             allowed_bad_guesses = 10  # Reset
 
-            self.filter_words(game)
+            self.filter_words(self.words, game)
             game.add_stat("word_count", len(self.words.get_filtered_words()))
 
         if allowed_bad_guesses == 0:

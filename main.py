@@ -1,17 +1,32 @@
 import argparse
 import files
-from games import WordSet
+from games import WordSet, GameRunner, WordleGame
+from guessers import MisterRando, GoodGuesser
 
 
-def run(games, top, infile, outfile):
+def run(game_count, top, infile, outfile):
     print(
-        f"Generating {games} games and outputting top {top} games to {outfile} using {infile} as input."
+        f"Generating {game_count} games and outputting top {top} games to {outfile} using {infile} as input."
     )
+    words = get_word_set(infile)
+    runner = GameRunner(words)
+    games = runner.generate_games(game_count)
+    result = runner.run_games(games, GoodGuesser(words).guess)
+    result_str = '\n\n'.join([game.summary() for game in result[:game_count]])
+    files.to_output(outfile, result_str)
+
+
+def get_word_set(infile):
     file_text = files.from_input(infile)
     words = WordSet(file_text)
-    # words.apply_length_filter(5)
-    # five_letter_word_data = '\n'.join(words.get_filtered_words())
-    # files.to_output(outfile, five_letter_word_data)
+    return words
+
+
+def format_word_list(infile):
+    words = get_word_set(infile)  
+    words.apply_length_filter(5)
+    five_letter_word_data = '\n'.join(words.get_filtered_words())
+    files.to_output(outfile, five_letter_word_data)
 
 
 if __name__ == "__main__":
