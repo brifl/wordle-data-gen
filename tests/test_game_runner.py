@@ -1,5 +1,7 @@
 import unittest
-from games import GameRunner, WordSet, WordleGame
+from wordset import WordSet
+from wordlegame import WordleGame
+from gamerunner import GameRunner
 
 
 class TestGameRunner(unittest.TestCase):

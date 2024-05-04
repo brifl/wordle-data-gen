@@ -1,5 +1,5 @@
 import unittest
-from games import WordSet
+from wordset import WordSet
 
 
 class TestWordSet(unittest.TestCase):

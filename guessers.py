@@ -1,7 +1,9 @@
 import random
-from games import WordleGame, WordSet
-from typing import List
+from wordset import WordSet
+from wordlegame import WordleGame
+from typing import List, Dict, Iterable, Tuple
 import string
+import logging
 
 
 class MisterRando:
@@ -14,36 +16,36 @@ class MisterRando:
 
 class GoodGuesser:
     def __init__(self, word_set: WordSet):
-        self.word_set = word_set
+        self.possible_words = word_set
         self.letter_stats = {}
         self.initialize_stats()
 
     def initialize_stats(self):
         for letter in string.ascii_lowercase:
             self.letter_stats[letter] = [0, 0, 0, 0, 0]
-        for word in self.word_set.all_words:
+        for word in self.possible_words.all_words:
             for i in range(0, len(word)):
                 self.letter_stats[word[i]][i] += 1
 
     def guess(self, possible_words: List[str], game_state: WordleGame = None) -> str:
-        filtered = self.sorted_words()
-        score_sum = 0
-        for score in filtered.values():
-            score_sum += score
-        rando = random.randint(0, score_sum)
-        for word in filtered:
-            rando -= filtered[word]
-            if rando <= 0:
+        word_scores = self.score_words()
+        total_score = sum(word_scores.values())
+        weighted_random = random.randint(0, total_score)
+        sorted_words = sorted(word_scores, key=word_scores.get, reverse=True)
+        for word in sorted_words:
+            weighted_random -= word_scores[word]
+            if weighted_random <= 0:
+                logging.debug(f"Guessing {word}")
                 return word
-        print("Error: No word found")
+        logging.debug(F"Error: No word found with filter down to {len(sorted_words)} words")
         return random.choice(possible_words)
 
-    def sorted_words(self):
-        word_scores = {}
-        for word in self.word_set.filtered_words():
+    def score_words(self) -> Dict[str, int]:
+        word_scores = {}              
+        words = self.possible_words.get_filtered_words()
+        for word in words:
             word_scores[word] = self.score_word(word)
-
-        return sorted(word_scores, key=word_scores.get, reverse=True)
+        return word_scores
 
     def score_word(self, word: str) -> int:
         score = 0

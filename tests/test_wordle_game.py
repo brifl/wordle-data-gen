@@ -1,5 +1,5 @@
 import unittest
-from games import WordleGame
+from wordlegame import WordleGame
 
 
 class TestWordleGame(unittest.TestCase):
