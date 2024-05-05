@@ -64,6 +64,7 @@ class WordleGame:
         self.state = "failed"
         if reason:
             self.add_stat("failure_reason", reason)
+            logging.warn(f"Game failed on word {self.word}: {reason}")
 
     def summary_string(self) -> str:
         return json.dumps(self.summary())

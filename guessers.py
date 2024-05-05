@@ -37,11 +37,13 @@ class GoodGuesser:
             if weighted_random <= 0:
                 logging.debug(f"Guessing {word}")
                 return word
-        logging.debug(F"Error: No word found with filter down to {len(sorted_words)} words")
+        logging.debug(
+            f"Error: No word found with filter down to {len(sorted_words)} words"
+        )
         return random.choice(possible_words)
 
     def score_words(self) -> Dict[str, int]:
-        word_scores = {}              
+        word_scores = {}
         words = self.possible_words.get_filtered_words()
         for word in words:
             word_scores[word] = self.score_word(word)

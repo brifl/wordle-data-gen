@@ -50,7 +50,13 @@ class GameRunner:
             possible_words = list(self.words.all_words)
             guess = guesser(possible_words, game.summary())
             logging.debug(f"Guess: {guess} of {len(self.words.all_words)} words")
-            if guess in game.guessed_words or guess not in self.words.all_words:
+            if guess in game.guessed_words:
+                logging.info(f"Bad guess with repeat guess: {guess}")
+                allowed_bad_guesses -= 1
+                continue
+            
+            if guess not in self.words.all_words:
+                logging.info(f"Bad guess with invalid word: {guess}")
                 allowed_bad_guesses -= 1
                 continue
 
@@ -59,6 +65,7 @@ class GameRunner:
                 logging.debug("applied")
             except ValueError as e:
                 allowed_bad_guesses -= 1
+                logging.info(f"Bad guess with exception: {e}")
                 continue
 
             allowed_bad_guesses = 10  # Reset

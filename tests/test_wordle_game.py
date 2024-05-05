@@ -5,6 +5,7 @@ from wordlegame import WordleGame
 class TestWordleGame(unittest.TestCase):
     def setUp(self):
         self.game = WordleGame("apple")
+        pass
 
     def test_init(self):
         self.assertEqual(self.game.word, "apple")

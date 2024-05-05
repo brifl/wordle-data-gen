@@ -31,11 +31,11 @@ def run(game_count, top, infile, outfile, logging_level):
         "win6": 0,
     }
     for game in result:
-        game_stats["total"] += 1
-        if game.state == "win":
+        logging.debug(game.state)
+        if game.state == "won":
             game_stats["wins"] += 1
-            game_stats[f"win{len(game.guesses)}"] += 1
-        elif game.state == "loss":
+            game_stats[f"win{len(game.guessed_words)}"] += 1
+        elif game.state == "lost":
             game_stats["losses"] += 1
         else:
             game_stats["failed"] += 1
@@ -57,13 +57,13 @@ if __name__ == "__main__":
         description="Generate syntetic data for Wordle game."
     )
     parser.add_argument(
-        "--games", type=int, help="Number of games to generate.", default=100
+        "--games", type=int, help="Number of games to generate.", default=10
     )
     parser.add_argument(
         "--top",
         type=int,
         help="Top number of games of best scoring games to output to the training file",
-        default=50,
+        default=10,
     )
     parser.add_argument(
         "--outfile",
