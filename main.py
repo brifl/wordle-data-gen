@@ -2,23 +2,72 @@ import argparse
 from wordset import WordSet
 from wordlegame import WordleGame
 import files
+from typing import List
 import logging
 from gamerunner import GameRunner
 from guessers import MisterRando, GoodGuesser
 import json
 
 
-
 def run(game_count, top, infile, outfile, logging_level):
     logging.basicConfig(level=logging_level)
     logging.info(
-        f"Generating {game_count} games and outputting top {top} games to {outfile} using {infile} as input."
+        f"Generating {game_count} games and outputting best of of {top} games to {outfile} using {infile} as input."
     )
     words = get_word_set(infile)
     runner = GameRunner(words)
     games = runner.generate_games(game_count)
-    result = runner.run_games(games, GoodGuesser(words).guess)
-    #result = runner.run_games(games, MisterRando.guess)
+    result_sets = []
+    guesser = GoodGuesser(words)
+
+    for _ in range(top):
+        running_games = runner.clone_games_fresh(games)
+        result = runner.run_games(running_games, guesser.guess)
+        result_sets.append(result)
+
+    best_result = result_sets[0]
+    if top > 1:
+        for i in range(game_count):
+            for j in range(1, top):
+                if len(result_sets[j][i].guessed_words) < len(
+                    best_result[i].guessed_words
+                ):
+                    best_result[i] = result_sets[j][i]
+
+    write_stats(game_count, outfile, best_result)
+    write_training(outfile, best_result)
+
+
+def write_training(outfile, best_result):
+
+    result_str = "\n".join([get_replay_text(game) for game in best_result])
+    files.to_output(outfile, result_str)
+
+
+def get_replay_text(game: WordleGame) -> str:
+    text = "User: Wordle start\n"
+    replay = WordleGame(game.word)
+    for i, guess in enumerate(game.guessed_words):
+        text += f"Assistant: Guess {i+1}: {guess}\n"
+        won = replay.guess(guess)
+        if won:
+            break
+        text += f"User: Feedback: {mask_word(replay.word, replay.remaining_word)} Wrong spot: {sorted(list(replay.wrong_spot))} Eliminated: {sorted(list(replay.letters_not_remaining))}\n"
+    text = text + f"User: Game end. Outcome: {replay.state}\n"
+    return text
+
+
+def mask_word(word, mask):
+    masked = ""
+    for i in range(len(word)):
+        if mask[i] == "*":
+            masked += word[i]
+        else:
+            masked += "*"
+    return masked
+
+
+def write_stats(game_count, outfile, best_result):
     game_stats = {
         "total": game_count,
         "wins": 0,
@@ -31,7 +80,7 @@ def run(game_count, top, infile, outfile, logging_level):
         "win5": 0,
         "win6": 0,
     }
-    for game in result:
+    for game in best_result:
         logging.debug(game.state)
         if game.state == "won":
             game_stats["wins"] += 1
@@ -43,8 +92,8 @@ def run(game_count, top, infile, outfile, logging_level):
 
     result_str = json.dumps(game_stats)
 
-    #result_str = "\n\n".join([game.summary_string() for game in result[:game_count]])
-    files.to_output(outfile, result_str)
+    # result_str = "\n\n".join([game.summary_string() for game in result[:game_count]])
+    files.to_output(outfile + "_stats", result_str)
 
 
 def get_word_set(infile):
@@ -63,8 +112,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--top",
         type=int,
-        help="Top number of games of best scoring games to output to the training file",
-        default=10,
+        help="Top of x number of games for a given word. Will take the best score of this many attempts.",
+        default=1,
     )
     parser.add_argument(
         "--outfile",

@@ -66,7 +66,7 @@ class GameRunner:
                 won = game.guess(guess)
                 logging.debug(f"Guess {guess} applied and game state is {game.state}") 
                 if won:
-                    logging.info(f"Game won in {len(game.guessed_words)} guesses.")
+                    logging.debug(f"Game won in {len(game.guessed_words)} guesses.")
                     break               
             except ValueError as e:
                 allowed_bad_guesses -= 1
