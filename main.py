@@ -39,8 +39,13 @@ def run(game_count, top, infile, outfile, logging_level):
 
 
 def write_training(outfile, best_result):
+    #result_str = "\n".join([get_replay_text(game) for game in best_result])
 
-    result_str = "\n".join([get_replay_text(game) for game in best_result])
+    all_alpacas = []
+    for game in best_result:
+        all_alpacas.extend(get_replay_alpaca(game))
+    result_str = json.dumps(all_alpacas, indent=4)
+
     files.to_output(outfile, result_str)
 
 
@@ -53,8 +58,26 @@ def get_replay_text(game: WordleGame) -> str:
         if won:
             break
         text += f"User: Feedback: {mask_word(replay.word, replay.remaining_word)} Wrong spot: {sorted(list(replay.wrong_spot))} Eliminated: {sorted(list(replay.letters_not_remaining))}\n"
-    text = text + f"User: Game end. Outcome: {replay.state}\n"
+    text = text + f"User: The word was '{replay.word}'. Outcome: {replay.state}! Game end.\n"
     return text
+
+def get_replay_alpaca(game: WordleGame) -> str:
+
+    alpacas = []   
+    replay = WordleGame(game.word)
+    for i, guess in enumerate(game.guessed_words):
+        alpaca = {}        
+        alpaca["instruction"] = "Guess the next Wordle word." 
+        alpaca["input"] = f"Guesses: {replay.guessed_words}, Matches: {mask_word(replay.word, replay.remaining_word)}, Wrong spot: {sorted(list(replay.wrong_spot))}, Eliminated: {sorted(list(replay.letters_not_remaining))}"
+        alpaca["output"] = guess
+        won = replay.guess(guess)
+        alpacas.append(alpaca)
+        if won:
+            break
+
+    return alpacas
+
+    
 
 
 def mask_word(word, mask):
