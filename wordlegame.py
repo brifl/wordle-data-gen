@@ -46,8 +46,8 @@ class WordleGame:
                 )
                 if letter in self.wrong_spot:
                     self.wrong_spot.remove(letter)
-            elif letter in self.word:
-                self.wrong_spot.add(letter)  # can I have dupes in wrong spot?
+            elif letter in self.remaining_word:
+                self.wrong_spot.add(letter)
         for letter in guess:
             if letter not in self.word:
                 self.letters_not_remaining.add(letter)

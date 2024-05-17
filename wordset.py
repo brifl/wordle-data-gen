@@ -29,6 +29,11 @@ class WordSet:
             word for word in self.filtered_words if len(word) == length
         }
 
+    def apply_guessed_word_filter(self, guessed_word: str) -> None:
+        self.filtered_words = {
+            word for word in self.filtered_words if word != guessed_word
+        }
+
     def apply_letter_position_filter(self, position: int, letter: str) -> None:
         logging.debug(
             f"Applying letter position filter: {position} {letter} with {len(self.filtered_words)} words."
@@ -42,8 +47,6 @@ class WordSet:
         self, word: str, letter: str, open_positions: List[int]
     ) -> bool:
         for position in open_positions:
-            if position >= len(word):
-                return False
             if word[position] == letter:
                 return True
         return False
@@ -52,7 +55,7 @@ class WordSet:
         self, letter: str, open_positions: List[int] = None
     ) -> None:
         logging.debug(
-            f"Applying letter contained filter: {letter} with {len(self.filtered_words)} words."
+            f"Applying letter contained filter: {letter} with {len(self.filtered_words)} words and open positions {open_positions}."
         )
         self.filtered_words = {
             word
@@ -65,7 +68,7 @@ class WordSet:
         self, letter: str, open_positions: List[int] = None
     ) -> None:
         logging.debug(
-            f"Applying letter not contained filter: {letter} with {len(self.filtered_words)} words."
+            f"Applying letter not contained filter: {letter} with {len(self.filtered_words)} words and open positions {open_positions}."
         )
         self.filtered_words = {
             word

@@ -18,6 +18,7 @@ def run(game_count, top, infile, outfile, logging_level):
     runner = GameRunner(words)
     games = runner.generate_games(game_count)
     result = runner.run_games(games, GoodGuesser(words).guess)
+    #result = runner.run_games(games, MisterRando.guess)
     game_stats = {
         "total": game_count,
         "wins": 0,

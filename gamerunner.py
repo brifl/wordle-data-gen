@@ -36,6 +36,8 @@ class GameRunner:
             words.apply_letter_contained_filter(letter, open_positions)
         for letter in game.letters_not_remaining:
             words.apply_letter_not_contained_filter(letter, open_positions)
+        for guessed_word in game.guessed_words:
+            words.apply_guessed_word_filter(guessed_word)
 
     def run_game(
         self, game: WordleGame, guesser: Callable[[List[str], dict], str]
@@ -61,8 +63,11 @@ class GameRunner:
                 continue
 
             try:
-                game.guess(guess)
-                logging.debug("applied")
+                won = game.guess(guess)
+                logging.debug(f"Guess {guess} applied and game state is {game.state}") 
+                if won:
+                    logging.info(f"Game won in {len(game.guessed_words)} guesses.")
+                    break               
             except ValueError as e:
                 allowed_bad_guesses -= 1
                 logging.info(f"Bad guess with exception: {e}")

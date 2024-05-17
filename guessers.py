@@ -40,6 +40,7 @@ class GoodGuesser:
         logging.debug(
             f"Error: No word found with filter down to {len(sorted_words)} words"
         )
+        logging.info(f"Totally random now")
         return random.choice(possible_words)
 
     def score_words(self) -> Dict[str, int]:
